@@ -1,6 +1,5 @@
 package com.example.android.popularmoviesapp;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity  {
 
     TextView mMoviesTextView;
 
@@ -32,12 +31,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         setupSharedPreference();
 
         mMoviesTextView = (TextView) findViewById(R.id.movies_tv);
-
-        loadMovieData();
+        String sort_by ="popular";
+        loadMovieData(sort_by);
     }
 
-    private void loadMovieData() {
-        String sort_by = "popular";
+    private void loadMovieData(String sort_by) {
         new FetchMoviesTask().execute(sort_by);
     }
 
@@ -47,23 +45,31 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings,menu);
+        getMenuInflater().inflate(R.menu.menu_sort_by,menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.action_settings){
-            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
-            startActivity(startSettingsActivity);
-            return  true;
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_sort_by_popularity:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                loadMovieData("popular");
+                return true;
+            case R.id.action_sort_by_rating:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                loadMovieData("top_rated");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<String>> {
@@ -103,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         @Override
         protected void onPostExecute(List<String> ls) {
+            mMoviesTextView.setText("");
             for(String s : ls)
                 mMoviesTextView.append(s + "\n\n");
         }

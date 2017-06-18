@@ -34,7 +34,7 @@ public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+    private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
 
     private final static String SORT_BY_PARAM = "sort_by";
     private final static String API_KEY_PARAM = "api_key";
@@ -48,8 +48,7 @@ public final class NetworkUtils {
     public static URL buildUrl(String sortby) {
 
         String api_key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
-        Uri builtUri = Uri.parse(TMDB_BASE_URL).buildUpon()
-//                .appendQueryParameter(SORT_BY_PARAM, sortby)
+        Uri builtUri = Uri.parse(TMDB_BASE_URL+sortby).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, api_key)
                 .build();
 
