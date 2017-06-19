@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
@@ -22,7 +24,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity  {
 
-    TextView mMoviesTextView;
+    private TextView mMoviesTextView;
+    private TextView mErrorMessageDisplay;
+    private ProgressBar mLoadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,8 @@ public class MainActivity extends AppCompatActivity  {
         setupSharedPreference();
 
         mMoviesTextView = (TextView) findViewById(R.id.movies_tv);
+        mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         String sort_by ="popular";
         loadMovieData(sort_by);
     }
@@ -72,7 +78,23 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    private void showErrorMessage() {
+        mMoviesTextView.setVisibility(View.INVISIBLE);
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
+    private void showMovieData(){
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mMoviesTextView.setVisibility(View.VISIBLE);
+    }
+
     private class FetchMoviesTask extends AsyncTask<String, Void, List<String>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected List<String> doInBackground(String... params) {
@@ -109,9 +131,16 @@ public class MainActivity extends AppCompatActivity  {
 
         @Override
         protected void onPostExecute(List<String> ls) {
-            mMoviesTextView.setText("");
-            for(String s : ls)
-                mMoviesTextView.append(s + "\n\n");
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            if(ls != null) {
+                showMovieData();
+                mMoviesTextView.setText("");
+                for (String s : ls)
+                    mMoviesTextView.append(s + "\n\n");
+            } else {
+                showErrorMessage();
+            }
+
         }
     }
 }
