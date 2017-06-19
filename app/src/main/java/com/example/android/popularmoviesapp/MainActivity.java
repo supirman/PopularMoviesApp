@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 
@@ -24,7 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity  {
 
         int numberOfColumns = 3;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-        movieAdapter = new MovieAdapter();
+        movieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(movieAdapter);
         String sort_by ="popular";
         loadMovieData(sort_by);
@@ -95,6 +96,11 @@ public class MainActivity extends AppCompatActivity  {
     private void showMovieData(){
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onCLick(String movie_name) {
+        Toast.makeText(this,movie_name,Toast.LENGTH_SHORT).show();
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<String>> {

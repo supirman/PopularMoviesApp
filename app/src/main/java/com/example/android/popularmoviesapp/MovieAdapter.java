@@ -14,9 +14,9 @@ import java.util.List;
 
 class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private List<String> mDataset;
-
-    MovieAdapter(){
-
+    private final MovieAdapterOnClickHandler mClickHandler;
+    MovieAdapter(MovieAdapterOnClickHandler clickHandler){
+        mClickHandler = clickHandler;
     }
 
     @Override
@@ -44,12 +44,24 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    interface MovieAdapterOnClickHandler{
+        void onCLick(String movie_name);
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // each data item is just a string in this case
         TextView mTextView;
         ViewHolder(View v) {
             super(v);
             mTextView = (TextView) v.findViewById(R.id.movie_grid_name);
+            v.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            String movie_name = mDataset.get(adapterPosition);
+            mClickHandler.onCLick(movie_name);
         }
     }
 }
