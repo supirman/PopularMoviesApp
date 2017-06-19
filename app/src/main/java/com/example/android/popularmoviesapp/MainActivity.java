@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,9 +26,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity  {
 
-    private TextView mMoviesTextView;
+    private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+
+    private MovieAdapter movieAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +38,14 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         setupSharedPreference();
 
-        mMoviesTextView = (TextView) findViewById(R.id.movies_tv);
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_movies);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+
+        int numberOfColumns = 3;
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        movieAdapter = new MovieAdapter();
+        mRecyclerView.setAdapter(movieAdapter);
         String sort_by ="popular";
         loadMovieData(sort_by);
     }
@@ -79,13 +88,13 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void showErrorMessage() {
-        mMoviesTextView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
     private void showMovieData(){
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        mMoviesTextView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<String>> {
@@ -134,9 +143,7 @@ public class MainActivity extends AppCompatActivity  {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(ls != null) {
                 showMovieData();
-                mMoviesTextView.setText("");
-                for (String s : ls)
-                    mMoviesTextView.append(s + "\n\n");
+                movieAdapter.setDataset(ls);
             } else {
                 showErrorMessage();
             }
