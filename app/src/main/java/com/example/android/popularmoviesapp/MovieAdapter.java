@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.popularmoviesapp.model.Movie;
+
 import java.util.List;
 
 /**
@@ -13,7 +15,7 @@ import java.util.List;
  */
 
 class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-    private List<String> mDataset;
+    private List<Movie> mDataset;
     private final MovieAdapterOnClickHandler mClickHandler;
     MovieAdapter(MovieAdapterOnClickHandler clickHandler){
         mClickHandler = clickHandler;
@@ -28,8 +30,8 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String movieName = mDataset.get(position);
-        holder.mTextView.setText(movieName);
+        Movie movie = mDataset.get(position);
+        holder.mTextView.setText(movie.getTitle());
     }
 
 
@@ -39,7 +41,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         return mDataset.size();
     }
 
-    void setDataset(List<String> mDataset) {
+    void setDataset(List<Movie> mDataset) {
         this.mDataset = mDataset;
         notifyDataSetChanged();
     }
@@ -60,8 +62,8 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String movie_name = mDataset.get(adapterPosition);
-            mClickHandler.onCLick(movie_name);
+            Movie movie = mDataset.get(adapterPosition);
+            mClickHandler.onCLick(movie.getTitle());
         }
     }
 }

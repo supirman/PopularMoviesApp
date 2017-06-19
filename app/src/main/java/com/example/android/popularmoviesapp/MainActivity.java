@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 
 import org.json.JSONArray;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         Toast.makeText(this,movie_name,Toast.LENGTH_SHORT).show();
     }
 
-    private class FetchMoviesTask extends AsyncTask<String, Void, List<String>> {
+    private class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected List<String> doInBackground(String... params) {
+        protected List<Movie> doInBackground(String... params) {
 
             if (params.length == 0) {
                 return null;
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             URL url = NetworkUtils.buildUrl(params[0]);
             String movie_data_json = null;
-            List<String> movie_list = new ArrayList<>();
+            List<Movie> movie_list = new ArrayList<>();
             try {
                 movie_data_json = NetworkUtils.getResponseFromHttpUrl(url);
             } catch (IOException e) {
@@ -134,8 +135,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
                 for(int i = 0; i < movieArray.length(); i++) {
                     JSONObject movie = movieArray.getJSONObject(i);
-                    String movie_name = movie.getString("original_title");
-                    movie_list.add(movie_name);
+                    Movie m = new Movie(movie);
+                    movie_list.add(m);
                 }
 
             } catch (JSONException e) {
@@ -145,11 +146,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected void onPostExecute(List<String> ls) {
+        protected void onPostExecute(List<Movie> lm) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(ls != null) {
+            if(lm != null) {
                 showMovieData();
-                movieAdapter.setDataset(ls);
+                movieAdapter.setDataset(lm);
             } else {
                 showErrorMessage();
             }
