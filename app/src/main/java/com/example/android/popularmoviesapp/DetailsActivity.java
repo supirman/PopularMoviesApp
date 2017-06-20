@@ -2,6 +2,7 @@ package com.example.android.popularmoviesapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -25,6 +26,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        setTitle("Movie Detail");
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity != null && intentThatStartedThisActivity.hasExtra(DETAIL_MOVIE)) {
             mMovie = intentThatStartedThisActivity.getExtras().getParcelable(DetailsActivity.DETAIL_MOVIE);
@@ -42,6 +44,11 @@ public class DetailsActivity extends AppCompatActivity {
             String base_url = "http://image.tmdb.org/t/p/";
             String grid_image= "w342";
             Picasso.with(mPoster.getContext()).load(base_url + grid_image + mMovie.getImage()).into(mPoster);
+        }
+
+        ActionBar actionBar = this.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 }
