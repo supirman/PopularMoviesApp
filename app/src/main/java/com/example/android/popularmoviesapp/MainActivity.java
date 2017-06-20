@@ -1,5 +1,6 @@
 package com.example.android.popularmoviesapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
@@ -101,8 +101,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onCLick(String movie_name) {
-        Toast.makeText(this,movie_name,Toast.LENGTH_SHORT).show();
+    public void onCLick(Movie movie) {
+        Intent intent = new Intent(getBaseContext(),DetailsActivity.class);
+        intent.putExtra(DetailsActivity.DETAIL_MOVIE, movie);
+        startActivity(intent);
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {

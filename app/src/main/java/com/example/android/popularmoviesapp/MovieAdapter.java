@@ -37,12 +37,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         Movie movie = mDataset.get(position);
         final String imageUrl = base_url + grid_image + movie.getImage();
         holder.mTextView.setText(movie.getTitle());
-        holder.mPosterImage.post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso.with(holder.mPosterImage.getContext()).load(imageUrl).resize(holder.mPosterImage.getWidth(),holder.mPosterImage.getHeight()).centerCrop().into(holder.mPosterImage);
-            }
-        });
+        Picasso.with(holder.mPosterImage.getContext()).load(imageUrl).into(holder.mPosterImage);
 
     }
 
@@ -59,7 +54,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     }
 
     interface MovieAdapterOnClickHandler{
-        void onCLick(String movie_name);
+        void onCLick(Movie movie);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -77,7 +72,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             Movie movie = mDataset.get(adapterPosition);
-            mClickHandler.onCLick(movie.getTitle());
+            mClickHandler.onCLick(movie);
         }
     }
 }
