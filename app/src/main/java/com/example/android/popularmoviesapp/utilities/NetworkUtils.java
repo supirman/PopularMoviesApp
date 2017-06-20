@@ -29,6 +29,7 @@ import java.util.Scanner;
 
 /**
  * These utilities will be used to communicate with the movie db servers.
+ * Taken from Sunshine NetworkUtils in Android Udacity course with some modification.
  */
 public final class NetworkUtils {
 
