@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         int numberOfColumns = 3;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-
+        mRecyclerView.setHasFixedSize(true);
         String sort_by ="popular";
         loadMovieData(sort_by);
     }
