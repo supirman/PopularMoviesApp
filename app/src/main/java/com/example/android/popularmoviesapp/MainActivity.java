@@ -75,17 +75,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         int id = item.getItemId();
         switch (id) {
             case R.id.action_sort_by_popularity:
-                if (item.isChecked())
-                    item.setChecked(false);
-                else
-                    item.setChecked(true);
+                item.setChecked(!item.isChecked());
                 loadMovieData("popular");
                 return true;
             case R.id.action_sort_by_rating:
-                if (item.isChecked())
-                    item.setChecked(false);
-                else
-                    item.setChecked(true);
+                item.setChecked(!item.isChecked());
                 loadMovieData("top_rated");
                 return true;
             default:
