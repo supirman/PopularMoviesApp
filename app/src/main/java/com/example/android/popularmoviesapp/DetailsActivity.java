@@ -9,6 +9,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesapp.model.Movie;
+import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -39,10 +40,11 @@ public class DetailsActivity extends AppCompatActivity {
             mSynopsis.setText(mMovie.getOverview());
             mRating.setRating((float)mMovie.getRating());
             mReleaseDate.setText(mMovie.getRelease_date());
-            mRatingText.setText(mMovie.getRating()+"/10");
-            String base_url = "http://image.tmdb.org/t/p/";
-            String grid_image= "w342";
-            Picasso.with(mPoster.getContext()).load(base_url + grid_image + mMovie.getImage()).into(mPoster);
+            mRatingText.setText(String.format("%s/10",mMovie.getRating()));
+
+            Picasso.with(mPoster.getContext())
+                    .load(NetworkUtils.getPosterURL(mMovie.getImage()))
+                    .into(mPoster);
         }
 
         ActionBar actionBar = this.getSupportActionBar();

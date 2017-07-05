@@ -40,6 +40,9 @@ public final class NetworkUtils {
     private final static String SORT_BY_PARAM = "sort_by";
     private final static String API_KEY_PARAM = "api_key";
 
+    private static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
+    private static final String POSTER_SIZE    = "w342";
+
     /**
      * Builds the URL used to talk to the TMDB server using a sort by.
      *
@@ -90,5 +93,9 @@ public final class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    public static String getPosterURL(String imageIdentifier){
+        return IMAGE_BASE_URL + POSTER_SIZE + imageIdentifier;
     }
 }

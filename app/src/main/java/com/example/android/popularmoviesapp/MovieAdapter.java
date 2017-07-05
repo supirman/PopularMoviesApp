@@ -8,12 +8,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesapp.model.Movie;
+import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 /**
  * Created by firman on 19/06/17.
+ * MovieAdapter class
  */
 
 class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
@@ -31,14 +33,9 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        String base_url = "http://image.tmdb.org/t/p/";
-        String grid_image= "w185";
+    public void onBindViewHolder(ViewHolder holder, int position) {
         Movie movie = mDataset.get(position);
-        final String imageUrl = base_url + grid_image + movie.getImage();
-        holder.mTextView.setText(movie.getTitle());
-        Picasso.with(holder.mPosterImage.getContext()).load(imageUrl).into(holder.mPosterImage);
-
+        holder.setMovie(movie);
     }
 
 
@@ -58,9 +55,11 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        // each data item is just a string in this case
         TextView mTextView;
         ImageView mPosterImage;
+
+        Movie mMovie;
+
         ViewHolder(View v) {
             super(v);
             mTextView = (TextView) v.findViewById(R.id.movie_grid_name);
@@ -70,9 +69,15 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            Movie movie = mDataset.get(adapterPosition);
-            mClickHandler.onCLick(movie);
+            mClickHandler.onCLick(mMovie);
+        }
+
+        void setMovie(Movie movie) {
+            this.mMovie = movie;
+            mTextView.setText(movie.getTitle());
+            Picasso.with(mPosterImage.getContext())
+                    .load(NetworkUtils.getPosterURL(movie.getImage()))
+                    .into(mPosterImage);
         }
     }
 }
