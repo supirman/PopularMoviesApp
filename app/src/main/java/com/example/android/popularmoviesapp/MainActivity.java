@@ -2,6 +2,7 @@ package com.example.android.popularmoviesapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -44,7 +45,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
-        int numberOfColumns = 3;
+        int numberOfColumns =
+                (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) ?
+                        3 : 5;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mRecyclerView.setHasFixedSize(true);
         String sort_by ="popular";
