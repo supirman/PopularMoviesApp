@@ -5,13 +5,11 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,11 +19,7 @@ import android.widget.TextView;
 import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
@@ -34,7 +28,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
 
-    private static final String MOVIE_QUERY_URL_EXTRA = "movie";
     private static final int MOVIE_LOADER = 100;
 
     private MovieAdapter movieAdapter;
@@ -64,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         URL url = NetworkUtils.buildUrl(sort_by);
 
         Bundle queryBundle = new Bundle();
-        queryBundle.putString(MOVIE_QUERY_URL_EXTRA, url.toString());
+        queryBundle.putString(NetworkUtils.MOVIE_QUERY_URL_EXTRA, url.toString());
 
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<List<Movie>> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
@@ -121,35 +114,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<List<Movie>>(this) {
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-                if (args == null) return;
-                forceLoad();
-            }
-
-            @Override
-            public List<Movie> loadInBackground() {
-                String url = args.getString(MOVIE_QUERY_URL_EXTRA);
-                if (TextUtils.isEmpty(url)) return null;
-                List<Movie> movieList = null;
-                try {
-                    String movieQueryResult = NetworkUtils.getResponseFromHttpUrl(new URL(url));
-                    JSONObject movieJson = new JSONObject(movieQueryResult);
-                    JSONArray movieArray = movieJson.getJSONArray("results");
-                    movieList = new ArrayList<>();
-                    for (int i = 0; i < movieArray.length(); i++) {
-                        JSONObject movie = movieArray.getJSONObject(i);
-                        Movie m = new Movie(movie);
-                        movieList.add(m);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return movieList;
-            }
-        };
+        return new MovieAsyncTaskLoader(this,args);
     }
 
     @Override
