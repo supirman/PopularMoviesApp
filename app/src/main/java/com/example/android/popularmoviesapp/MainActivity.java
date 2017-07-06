@@ -3,12 +3,15 @@ package com.example.android.popularmoviesapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,19 +22,20 @@ import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+
+    private static final String MOVIE_QUERY_URL_EXTRA = "movie";
+    private static final int MOVIE_LOADER = 100;
 
     private MovieAdapter movieAdapter;
 
@@ -50,14 +54,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                         3 : 5;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mRecyclerView.setHasFixedSize(true);
-        String sort_by ="popular";
+        movieAdapter = new MovieAdapter(MainActivity.this);
+        mRecyclerView.setAdapter(movieAdapter);
+        String sort_by = "popular";
         loadMovieData(sort_by);
     }
 
     private void loadMovieData(String sort_by) {
-        movieAdapter = new MovieAdapter(MainActivity.this);
-        mRecyclerView.setAdapter(movieAdapter);
-        new FetchMoviesTask().execute(sort_by);
+        URL url = NetworkUtils.buildUrl(sort_by);
+
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(MOVIE_QUERY_URL_EXTRA, url.toString());
+
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<List<Movie>> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
+
+        if (movieLoader == null) loaderManager.initLoader(MOVIE_LOADER, queryBundle, this);
+        else loaderManager.restartLoader(MOVIE_LOADER, queryBundle, this);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+        mRecyclerView.getLayoutManager().scrollToPosition(0);
     }
 
     private void setupSharedPreference() {
@@ -66,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_sort_by,menu);
+        getMenuInflater().inflate(R.menu.menu_sort_by, menu);
         return true;
     }
 
@@ -92,69 +107,64 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    private void showMovieData(){
+    private void showMovieData() {
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onCLick(Movie movie) {
-        Intent intent = new Intent(getBaseContext(),DetailsActivity.class);
+        Intent intent = new Intent(getBaseContext(), DetailsActivity.class);
         intent.putExtra(DetailsActivity.DETAIL_MOVIE, movie);
         startActivity(intent);
     }
 
-    private class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected List<Movie> doInBackground(String... params) {
-
-            if (params.length == 0) {
-                return null;
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<List<Movie>>(this) {
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                if (args == null) return;
+                forceLoad();
             }
 
-            URL url = NetworkUtils.buildUrl(params[0]);
-            String movie_data_json = null;
-            List<Movie> movie_list = new ArrayList<>();
-            try {
-                movie_data_json = NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            JSONObject movieJson ;
-            try {
-                movieJson = new JSONObject(movie_data_json);
-                JSONArray movieArray = movieJson.getJSONArray("results");
-
-
-                for(int i = 0; i < movieArray.length(); i++) {
-                    JSONObject movie = movieArray.getJSONObject(i);
-                    Movie m = new Movie(movie);
-                    movie_list.add(m);
+            @Override
+            public List<Movie> loadInBackground() {
+                String url = args.getString(MOVIE_QUERY_URL_EXTRA);
+                if (TextUtils.isEmpty(url)) return null;
+                List<Movie> movieList = null;
+                try {
+                    String movieQueryResult = NetworkUtils.getResponseFromHttpUrl(new URL(url));
+                    JSONObject movieJson = new JSONObject(movieQueryResult);
+                    JSONArray movieArray = movieJson.getJSONArray("results");
+                    movieList = new ArrayList<>();
+                    for (int i = 0; i < movieArray.length(); i++) {
+                        JSONObject movie = movieArray.getJSONObject(i);
+                        Movie m = new Movie(movie);
+                        movieList.add(m);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
+                return movieList;
             }
-            return movie_list;
-        }
+        };
+    }
 
-        @Override
-        protected void onPostExecute(List<Movie> lm) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(lm != null) {
-                showMovieData();
-                movieAdapter.setDataset(lm);
-            } else {
-                showErrorMessage();
-            }
-
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (data != null) {
+            showMovieData();
+            movieAdapter.setDataset(data);
+        } else {
+            showErrorMessage();
         }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+
     }
 }
