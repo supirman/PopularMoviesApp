@@ -42,7 +42,7 @@ public final class NetworkUtils {
 
     private static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
     private static final String POSTER_SIZE    = "w342";
-    public static final String MOVIE_QUERY_URL_EXTRA = "movie";
+    public static final String URL_EXTRA = "url";
 
     /**
      * Builds the URL used to talk to the TMDB server using a sort by.

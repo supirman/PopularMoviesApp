@@ -19,10 +19,15 @@ import android.widget.TextView;
 import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<JSONArray> {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         URL url = NetworkUtils.buildUrl(sort_by);
 
         Bundle queryBundle = new Bundle();
-        queryBundle.putString(NetworkUtils.MOVIE_QUERY_URL_EXTRA, url.toString());
+        queryBundle.putString(NetworkUtils.URL_EXTRA, url.toString());
 
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<List<Movie>> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
@@ -113,23 +118,34 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
-        return new MovieAsyncTaskLoader(this,args);
+    public Loader<JSONArray> onCreateLoader(int id, final Bundle args) {
+        return new TMDBJSONAsyncTaskLoader(this, args);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+    public void onLoadFinished(Loader<JSONArray> loader, JSONArray movieArray) {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
-        if (data != null) {
+        List<Movie> movieList = null;
+        try {
+            movieList = new ArrayList<>();
+            for (int i = 0; i < movieArray.length(); i++) {
+                JSONObject movie = movieArray.getJSONObject(i);
+                Movie m = new Movie(movie);
+                movieList.add(m);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (movieList.size()!=0) {
             showMovieData();
-            movieAdapter.setDataset(data);
+            movieAdapter.setDataset(movieList);
         } else {
             showErrorMessage();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Movie>> loader) {
+    public void onLoaderReset(Loader<JSONArray> loader) {
 
     }
 }
