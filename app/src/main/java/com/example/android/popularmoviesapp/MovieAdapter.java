@@ -13,12 +13,15 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by firman on 19/06/17.
  * MovieAdapter class
  */
 
-class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
+class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.PosterViewHolder> {
     private List<Movie> mDataset;
     private final MovieAdapterOnClickHandler mClickHandler;
     MovieAdapter(MovieAdapterOnClickHandler clickHandler){
@@ -26,14 +29,14 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PosterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.movie_list_item, parent, false);
-        return new ViewHolder(v);
+        return new PosterViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(PosterViewHolder holder, int position) {
         Movie movie = mDataset.get(position);
         holder.setMovie(movie);
     }
@@ -54,16 +57,15 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
         void onCLick(Movie movie);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView mTextView;
-        ImageView mPosterImage;
+    class PosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @BindView(R.id.movie_grid_name) TextView mTextView;
+        @BindView(R.id.movie_grid_image) ImageView mPosterImage;
 
         Movie mMovie;
 
-        ViewHolder(View v) {
+        PosterViewHolder(View v) {
             super(v);
-            mTextView = (TextView) v.findViewById(R.id.movie_grid_name);
-            mPosterImage = (ImageView) v.findViewById(R.id.movie_grid_image);
+            ButterKnife.bind(this,v);
             v.setOnClickListener(this);
         }
 

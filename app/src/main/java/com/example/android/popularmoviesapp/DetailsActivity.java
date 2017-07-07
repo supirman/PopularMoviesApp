@@ -12,16 +12,19 @@ import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DetailsActivity extends AppCompatActivity {
 
     public static final String DETAIL_MOVIE = "DETAIL_MOVIE";
     private Movie mMovie;
-    private TextView mTitle;
-    private TextView mReleaseDate;
-    private TextView mSynopsis;
-    private TextView mRatingText;
-    private RatingBar mRating;
-    private ImageView mPoster;
+    @BindView(R.id.title_tv) TextView mTitle;
+    @BindView(R.id.release_date_tv) TextView mReleaseDate;
+    @BindView(R.id.synopsis_tv) TextView mSynopsis;
+    @BindView(R.id.rating_tv) TextView mRatingText;
+    @BindView(R.id.rating_bar) RatingBar mRating;
+    @BindView(R.id.image_detail) ImageView mPoster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +33,7 @@ public class DetailsActivity extends AppCompatActivity {
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity != null && intentThatStartedThisActivity.hasExtra(DETAIL_MOVIE)) {
             mMovie = intentThatStartedThisActivity.getExtras().getParcelable(DetailsActivity.DETAIL_MOVIE);
-            mTitle = (TextView) findViewById(R.id.title_tv);
-            mSynopsis = (TextView) findViewById(R.id.synopsis_tv);
-            mRating = (RatingBar) findViewById(R.id.rating_bar);
-            mPoster = (ImageView) findViewById(R.id.image_detail);
-            mReleaseDate = (TextView) findViewById(R.id.release_date_tv);
-            mRatingText = (TextView) findViewById(R.id.rating_tv);
+            ButterKnife.bind(this);
             mTitle.setText(mMovie.getTitle());
             mSynopsis.setText(mMovie.getOverview());
             mRating.setRating((float)mMovie.getRating());
