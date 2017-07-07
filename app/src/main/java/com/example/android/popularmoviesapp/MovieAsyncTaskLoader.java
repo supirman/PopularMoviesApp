@@ -22,6 +22,7 @@ import java.util.List;
 
 class MovieAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
     private Bundle Args;
+    private List<Movie> mMovieList;
 
     MovieAsyncTaskLoader(Context context, Bundle args) {
         super(context);
@@ -32,7 +33,12 @@ class MovieAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
     protected void onStartLoading() {
         super.onStartLoading();
         if (Args == null) return;
-        forceLoad();
+        if(mMovieList!=null) {
+            deliverResult(mMovieList);
+        }
+        else {
+            forceLoad();
+        }
     }
 
     @Override
@@ -54,5 +60,11 @@ class MovieAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
             e.printStackTrace();
         }
         return movieList;
+    }
+
+    @Override
+    public void deliverResult(List<Movie> data) {
+        mMovieList = data;
+        super.deliverResult(data);
     }
 }
