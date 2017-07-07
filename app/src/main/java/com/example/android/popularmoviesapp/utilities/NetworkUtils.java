@@ -39,10 +39,12 @@ public final class NetworkUtils {
 
     private final static String SORT_BY_PARAM = "sort_by";
     private final static String API_KEY_PARAM = "api_key";
+    private final static String MOVIE_ID_PARAM= "movie_id";
+    private final static String REVIEWS_PATH  = "/reviews";
 
-    private static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-    private static final String POSTER_SIZE    = "w342";
-    public static final String URL_EXTRA = "url";
+    private static final String IMAGE_BASE_URL= "http://image.tmdb.org/t/p/";
+    private static final String POSTER_SIZE   = "w342";
+    public static final String URL_EXTRA      = "url";
 
     /**
      * Builds the URL used to talk to the TMDB server using a sort by.
@@ -50,22 +52,31 @@ public final class NetworkUtils {
      * @param sortby The location that will be queried for.
      * @return The URL to use to query the weather server.
      */
-    public static URL buildUrl(String sortby) {
-
+    public static URL buildMovieUrl(String sortby) {
         String api_key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
         Uri builtUri = Uri.parse(TMDB_BASE_URL+sortby).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, api_key)
                 .build();
+        return _parseURI(builtUri);
+    }
 
+    public static URL buildReviewUrl(int movie_id) {
+        String api_key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
+        Uri builtUri = Uri.parse(TMDB_BASE_URL+movie_id+ REVIEWS_PATH).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, api_key)
+                .appendQueryParameter(MOVIE_ID_PARAM, String.valueOf(movie_id))
+                .build();
+        return _parseURI(builtUri);
+    }
+
+    private static URL _parseURI(Uri uri){
         URL url = null;
         try {
-            url = new URL(builtUri.toString());
+            url = new URL(uri.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         Log.v(TAG, "Built URI " + url);
-
         return url;
     }
 

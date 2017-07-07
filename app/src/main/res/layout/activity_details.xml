@@ -88,13 +88,17 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_margin="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/trailer"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/trailer_rv"
@@ -113,13 +117,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_margin="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/review"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"/>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/review_rv"

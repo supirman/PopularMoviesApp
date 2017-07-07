@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private void loadMovieData(String sort_by) {
-        URL url = NetworkUtils.buildUrl(sort_by);
+        URL url = NetworkUtils.buildMovieUrl(sort_by);
 
         Bundle queryBundle = new Bundle();
         queryBundle.putString(NetworkUtils.URL_EXTRA, url.toString());
