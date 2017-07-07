@@ -23,4 +23,6 @@
     <string name="poster_placeholder">Poster</string>
     <string name="title_movie_detail">Movie Detail</string>
     <string name="movie_poster">Movie Poster</string>
+    <string name="trailer">Trailer</string>
+    <string name="review">Review</string>
 </resources>
