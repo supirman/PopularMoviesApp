@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         queryBundle.putString(NetworkUtils.URL_EXTRA, url.toString());
 
         LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<List<Movie>> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
+        Loader<JSONArray> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
 
         if (movieLoader == null) loaderManager.initLoader(MOVIE_LOADER, queryBundle, this);
         else loaderManager.restartLoader(MOVIE_LOADER, queryBundle, this);
