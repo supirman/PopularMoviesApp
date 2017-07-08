@@ -1,6 +1,7 @@
 package com.example.android.popularmoviesapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.model.Review;
+import com.example.android.popularmoviesapp.model.Trailer;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
@@ -28,10 +30,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<JSONArray> {
+public class DetailsActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<JSONArray>, TrailerAdapter.TrailerAdapterOnClickHandler {
 
     public static final String DETAIL_MOVIE = "DETAIL_MOVIE";
     private static final int REVIEW_LOADER = 101;
+    private static final int VIDEO_LOADER = 102;
     private Movie mMovie;
     @BindView(R.id.title_tv)
     TextView mTitle;
@@ -47,8 +51,11 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     ImageView mPoster;
     @BindView(R.id.review_rv)
     RecyclerView mReviewRecyclerView;
+    @BindView(R.id.trailer_rv)
+    RecyclerView mTrailerRecyclerView;
 
     private ReviewAdapter reviewAdapter;
+    private TrailerAdapter trailerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +69,17 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
 
             mReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mReviewRecyclerView.setNestedScrollingEnabled(false);
-
             reviewAdapter = new ReviewAdapter();
             mReviewRecyclerView.setAdapter(reviewAdapter);
 
+            mTrailerRecyclerView.setLayoutManager(
+                    new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+            trailerAdapter = new TrailerAdapter(this);
+            mTrailerRecyclerView.setAdapter(trailerAdapter);
+
             loadReviewData();
+            loadTrailerData();
+
         }
 
         ActionBar actionBar = this.getSupportActionBar();
@@ -94,10 +107,23 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         queryBundle.putString(NetworkUtils.URL_EXTRA, url.toString());
 
         LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<List<JSONArray>> movieLoader = loaderManager.getLoader(REVIEW_LOADER);
+        Loader<JSONArray> movieLoader = loaderManager.getLoader(REVIEW_LOADER);
 
         if (movieLoader == null) loaderManager.initLoader(REVIEW_LOADER, queryBundle, this);
         else loaderManager.restartLoader(REVIEW_LOADER, queryBundle, this);
+    }
+
+    private void loadTrailerData() {
+        URL url = NetworkUtils.buildVideoUrl(mMovie.getId());
+
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(NetworkUtils.URL_EXTRA, url.toString());
+
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<JSONArray> movieLoader = loaderManager.getLoader(VIDEO_LOADER);
+
+        if (movieLoader == null) loaderManager.initLoader(VIDEO_LOADER, queryBundle, this);
+        else loaderManager.restartLoader(VIDEO_LOADER, queryBundle, this);
     }
 
     @Override
@@ -106,21 +132,44 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     }
 
     @Override
-    public void onLoadFinished(Loader<JSONArray> loader, JSONArray movieArray) {
-        if (loader.getId() == REVIEW_LOADER) {
-            List<Review> resultList = null;
-            try {
-                resultList = new ArrayList<>();
-                for (int i = 0; i < movieArray.length(); i++) {
-                    JSONObject jsonObject = movieArray.getJSONObject(i);
-                    resultList.add(new Review(jsonObject));
+    public void onLoadFinished(Loader<JSONArray> loader, JSONArray jsonArrayArray) {
+        switch (loader.getId()) {
+            case REVIEW_LOADER : {
+                List <Review> resultList = null ;
+                try {
+                    resultList = new ArrayList<>();
+                    for (int i = 0; i < jsonArrayArray.length(); i++) {
+                        JSONObject jsonObject = jsonArrayArray.getJSONObject(i);
+                        resultList.add(new Review(jsonObject));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                //noinspection ConstantConditions
+                if (resultList != null && resultList.size() != 0) {
+                    reviewAdapter.setDataset(resultList);
+                }
+                break;
             }
-            //noinspection ConstantConditions
-            if (resultList != null && resultList.size() != 0) {
-                reviewAdapter.setDataset(resultList);
+            case VIDEO_LOADER : {
+                List <Trailer> resultList = null ;
+                try {
+                    resultList = new ArrayList<>();
+                    for (int i = 0; i < jsonArrayArray.length(); i++) {
+                        JSONObject jsonObject = jsonArrayArray.getJSONObject(i);
+                        //Make sure it is Youtube key
+                        if(jsonObject.getString("key").length()==11 && jsonObject.getString("type").equals("Trailer")){
+                            resultList.add(new Trailer(jsonObject));
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //noinspection ConstantConditions
+                if (resultList != null && resultList.size() != 0) {
+                    trailerAdapter.setDataset(resultList);
+                }
+                break;
             }
         }
     }
@@ -128,5 +177,12 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoaderReset(Loader<JSONArray> loader) {
 
+    }
+
+    @Override
+    public void onCLick(Trailer trailer) {
+        if(trailer != null)
+        startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://www.youtube.com/watch?v="+trailer.getKey())));
     }
 }

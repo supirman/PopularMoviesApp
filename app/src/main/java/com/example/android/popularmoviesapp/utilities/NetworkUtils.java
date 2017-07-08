@@ -40,12 +40,18 @@ public final class NetworkUtils {
     private final static String SORT_BY_PARAM = "sort_by";
     private final static String API_KEY_PARAM = "api_key";
     private final static String MOVIE_ID_PARAM= "movie_id";
+    private final static String LANG_PARAM    = "lang";
+    private final static String DEFAULT_LANG  = "en-US";
+
     private final static String REVIEWS_PATH  = "/reviews";
+    private final static String VIDEOS_PATH   = "/videos";
 
     private static final String IMAGE_BASE_URL= "http://image.tmdb.org/t/p/";
     private static final String POSTER_SIZE   = "w342";
     public static final String URL_EXTRA      = "url";
 
+    private static final String YT_THUMB_BASE_URL   = "https://img.youtube.com/vi/";
+    private static final String YT_THUMB_SIZE       = "/default.jpg";
     /**
      * Builds the URL used to talk to the TMDB server using a sort by.
      *
@@ -65,8 +71,23 @@ public final class NetworkUtils {
         Uri builtUri = Uri.parse(TMDB_BASE_URL+movie_id+ REVIEWS_PATH).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, api_key)
                 .appendQueryParameter(MOVIE_ID_PARAM, String.valueOf(movie_id))
+                .appendQueryParameter(LANG_PARAM, DEFAULT_LANG)
                 .build();
         return _parseURI(builtUri);
+    }
+
+    public static URL buildVideoUrl(int movie_id) {
+        String api_key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
+        Uri builtUri = Uri.parse(TMDB_BASE_URL+movie_id+VIDEOS_PATH).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, api_key)
+                .appendQueryParameter(MOVIE_ID_PARAM, String.valueOf(movie_id))
+                .appendQueryParameter(LANG_PARAM, DEFAULT_LANG)
+                .build();
+        return _parseURI(builtUri);
+    }
+
+    public static String YTThumbnailBuilder(String key){
+        return YT_THUMB_BASE_URL+key+YT_THUMB_SIZE;
     }
 
     private static URL _parseURI(Uri uri){
@@ -76,7 +97,7 @@ public final class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        Log.v(TAG, "Built URI " + url);
+        if(BuildConfig.DEBUG) Log.v(TAG, "Built URI " + url);
         return url;
     }
 

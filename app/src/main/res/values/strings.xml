@@ -25,4 +25,6 @@
     <string name="movie_poster">Movie Poster</string>
     <string name="trailer">Trailer</string>
     <string name="review">Review</string>
+    <string name="video_preview">Video Preview</string>
+    <string name="play_button">Play Button</string>
 </resources>
