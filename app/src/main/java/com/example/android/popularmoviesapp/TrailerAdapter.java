@@ -77,6 +77,7 @@ class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHold
                 data = trailer;
                 Picasso.with(trailerThumbnail_iv.getContext())
                         .load(NetworkUtils.YTThumbnailBuilder(trailer.getKey()))
+                        .placeholder(R.drawable.no_thumbnail)
                         .into(trailerThumbnail_iv);
             } else {
                 this.itemView.setVisibility(View.GONE);

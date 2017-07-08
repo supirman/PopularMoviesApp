@@ -76,6 +76,7 @@ public class DetailsActivity extends AppCompatActivity implements
                     new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
             trailerAdapter = new TrailerAdapter(this);
             mTrailerRecyclerView.setAdapter(trailerAdapter);
+            mTrailerRecyclerView.setHasFixedSize(true);
 
             loadReviewData();
             loadTrailerData();
