@@ -60,7 +60,7 @@ class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>
 
         void setReview(Review review) {
             this.mReviewAuthor_tv.setText(review.getAuthor());
-            this.mReviewContent_tv.setText(fromHtml(review.getContent()));
+            this.mReviewContent_tv.setText(review.getContent());
         }
     }
 
