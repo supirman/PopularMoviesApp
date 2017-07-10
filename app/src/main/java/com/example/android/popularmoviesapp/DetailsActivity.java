@@ -73,7 +73,7 @@ public class DetailsActivity extends AppCompatActivity implements
             mReviewRecyclerView.setAdapter(reviewAdapter);
 
             mTrailerRecyclerView.setLayoutManager(
-                    new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+                    new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             trailerAdapter = new TrailerAdapter(this);
             mTrailerRecyclerView.setAdapter(trailerAdapter);
             mTrailerRecyclerView.setHasFixedSize(true);
@@ -132,42 +132,47 @@ public class DetailsActivity extends AppCompatActivity implements
         return new TMDBJSONAsyncTaskLoader(this, args);
     }
 
-    @Override
-    public void onLoadFinished(Loader<JSONArray> loader, JSONArray jsonArrayArray) {
-        switch (loader.getId()) {
-            case REVIEW_LOADER : {
-                List <Review> resultList = null ;
-                try {
-                    resultList = new ArrayList<>();
-                    for (int i = 0; i < jsonArrayArray.length(); i++) {
-                        JSONObject jsonObject = jsonArrayArray.getJSONObject(i);
-                        resultList.add(new Review(jsonObject));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+    private static <T> List<T> jsonToList(JSONArray jsonArray, Class<T> cl) {
+        List<T> resultList = new ArrayList<>();
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                if (isValid(jsonObject, cl)) {
+                    resultList.add(cl.getDeclaredConstructor(JSONObject.class)
+                            .newInstance(jsonObject));
                 }
-                //noinspection ConstantConditions
-                if (resultList != null && resultList.size() != 0) {
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+    private static boolean isValid(JSONObject jsonObject, Class cl) throws JSONException {
+        if (cl == Review.class) {
+            return true;
+        } else if (cl == Trailer.class
+                && jsonObject.getString("key").length() == 11
+                && jsonObject.getString("type").equals("Trailer")
+                && jsonObject.getString("site").equals("YouTube")) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<JSONArray> loader, JSONArray jsonArray) {
+        switch (loader.getId()) {
+            case REVIEW_LOADER: {
+                List<Review> resultList = jsonToList(jsonArray, Review.class);
+                if (resultList.size() != 0) {
                     reviewAdapter.setDataset(resultList);
                 }
                 break;
             }
-            case VIDEO_LOADER : {
-                List <Trailer> resultList = null ;
-                try {
-                    resultList = new ArrayList<>();
-                    for (int i = 0; i < jsonArrayArray.length(); i++) {
-                        JSONObject jsonObject = jsonArrayArray.getJSONObject(i);
-                        //Make sure it is Youtube key
-                        if(jsonObject.getString("key").length()==11 && jsonObject.getString("type").equals("Trailer")){
-                            resultList.add(new Trailer(jsonObject));
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                //noinspection ConstantConditions
-                if (resultList != null && resultList.size() != 0) {
+            case VIDEO_LOADER: {
+                List<Trailer> resultList = jsonToList(jsonArray, Trailer.class);
+                if (resultList.size() != 0) {
                     trailerAdapter.setDataset(resultList);
                 }
                 break;
@@ -182,8 +187,8 @@ public class DetailsActivity extends AppCompatActivity implements
 
     @Override
     public void onCLick(Trailer trailer) {
-        if(trailer != null)
-        startActivity(new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://www.youtube.com/watch?v="+trailer.getKey())));
+        if (trailer != null)
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://www.youtube.com/watch?v=" + trailer.getKey())));
     }
 }
