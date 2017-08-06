@@ -56,6 +56,17 @@ public class FavoriteContentProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+            case FAVORITE_WITH_ID:
+                // Get the task ID from the URI path
+                String id = uri.getPathSegments().get(1);
+                retCursor = db.query(FavoriteContract.FavoriteEntry.TABLE_NAME,
+                         projection,
+                        "_id=?",
+                        new String[]{id},
+                        null,
+                        null,
+                        sortOrder);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -94,7 +105,24 @@ public class FavoriteContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        int favDeleted;
+        int match = sUriMatcher.match(uri);
+        switch (match){
+            case FAVORITE_WITH_ID:
+                // Get the task ID from the URI path
+                String id = uri.getPathSegments().get(1);
+                // Use selections/selectionArgs to filter for this ID
+                favDeleted = db.delete(FavoriteContract.FavoriteEntry.TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (favDeleted != 0) {
+            // A task was deleted, set notification
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return favDeleted;
     }
 
     @Override

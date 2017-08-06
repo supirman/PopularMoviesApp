@@ -1,9 +1,13 @@
 package com.example.android.popularmoviesapp;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -14,10 +18,10 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmoviesapp.data.FavoriteContract;
 import com.example.android.popularmoviesapp.model.Movie;
@@ -43,6 +47,7 @@ public class DetailsActivity extends AppCompatActivity implements
     public static final String DETAIL_MOVIE = "DETAIL_MOVIE";
     private static final int REVIEW_LOADER = 101;
     private static final int VIDEO_LOADER = 102;
+    private static final int FAVORITE_MOVIE_CHECK = 201;
     private Movie mMovie;
     @BindView(R.id.title_tv)
     TextView mTitle;
@@ -66,6 +71,8 @@ public class DetailsActivity extends AppCompatActivity implements
 
     private ShareActionProvider mShareActionProvider;
     private Trailer firstTrailer;
+
+    private boolean favorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +98,46 @@ public class DetailsActivity extends AppCompatActivity implements
             loadReviewData();
             loadTrailerData();
 
+            checkFavorite();
+
         }
 
         ActionBar actionBar = this.getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private void favoriteButtonSetup(){
+        Button fb = findViewById(R.id.favorite_button);
+        Drawable img = ContextCompat.getDrawable( getApplicationContext(),
+                favorite ? R.drawable.ic_favorite_red_24dp :
+                        R.drawable.ic_favorite_border_black_24dp);
+
+        fb.setCompoundDrawablesWithIntrinsicBounds(img,null,null,null);
+    }
+
+    private void checkFavorite() {
+        getSupportLoaderManager().initLoader(FAVORITE_MOVIE_CHECK, null, new LoaderManager.LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                return new CursorLoader(getApplicationContext(), FavoriteContract.FavoriteEntry.CONTENT_URI.buildUpon()
+                        .appendPath(Integer.toString(mMovie.getId())).build(),
+                        null, null, null, null);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                if(data.getCount() == 1) favorite = true;
+                favoriteButtonSetup();
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Cursor> loader) {
+
+            }
+        });
+
     }
 
     void initMainInfo() {
@@ -206,11 +247,21 @@ public class DetailsActivity extends AppCompatActivity implements
     }
 
     public void onClickToggleFavorite(View view) {
-        Uri uri = getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI,
-                mMovie.toContentValues());
-        if(uri != null) {
-            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+        if(!favorite) {
+            Uri uri = getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                    mMovie.toContentValues());
+            if (uri != null) {
+                favorite = true;
+                //Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            int favDeleted = getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI.buildUpon()
+                            .appendPath(Integer.toString(mMovie.getId())).build(),
+                    null, null);
+            if(favDeleted>0)favorite = false;
+            //Toast.makeText(getBaseContext(), "Deleted:"+favDeleted, Toast.LENGTH_LONG).show();
         }
+        favoriteButtonSetup();
     }
 
     @Override
