@@ -9,10 +9,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popularmoviesapp.data.FavoriteContract;
 import com.example.android.popularmoviesapp.model.Movie;
 import com.example.android.popularmoviesapp.model.Review;
 import com.example.android.popularmoviesapp.model.Trailer;
@@ -93,7 +96,7 @@ public class DetailsActivity extends AppCompatActivity implements
         mTitle.setText(mMovie.getTitle());
         mSynopsis.setText(mMovie.getOverview());
         mRating.setRating((float) mMovie.getRating());
-        mReleaseDate.setText(mMovie.getRelease_date());
+        mReleaseDate.setText(mMovie.getReleaseDate());
         mRatingText.setText(String.format("%s/10", mMovie.getRating()));
 
         Picasso.with(mPoster.getContext())
@@ -190,5 +193,13 @@ public class DetailsActivity extends AppCompatActivity implements
         if (trailer != null)
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://www.youtube.com/watch?v=" + trailer.getKey())));
+    }
+
+    public void onClickToggleFavorite(View view) {
+        Uri uri = getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                mMovie.toContentValues());
+        if(uri != null) {
+            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+        }
     }
 }

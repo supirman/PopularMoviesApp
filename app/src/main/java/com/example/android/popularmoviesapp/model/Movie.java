@@ -1,13 +1,18 @@
 package com.example.android.popularmoviesapp.model;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.example.android.popularmoviesapp.data.FavoriteContract;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * Created by firman on 19/06/17.
+ * Movie Model
  */
 
 public class Movie implements Parcelable {
@@ -66,7 +71,7 @@ public class Movie implements Parcelable {
         return rating;
     }
 
-    public String getRelease_date() {
+    public String getReleaseDate() {
         return release_date;
     }
 
@@ -98,4 +103,28 @@ public class Movie implements Parcelable {
         dest.writeDouble(rating);
         dest.writeString(release_date);
     }
+
+    public ContentValues toContentValues(){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FavoriteContract.FavoriteEntry._ID, this.getId());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_TITLE, this.getTitle());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH, this.getImage());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH, this.getDetailImage());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW, this.getOverview());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE, this.getRating());
+        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE, this.getReleaseDate());
+        return contentValues;
+    }
+
+
+    public Movie(Cursor cursor){
+        this.id         = cursor.getInt(cursor.getColumnIndex(FavoriteContract.FavoriteEntry._ID));
+        this.title      = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TITLE));
+        this.image      = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH));
+        this.detailImage= cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH));
+        this.overview   = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW));
+        this.rating     = cursor.getDouble(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE));
+        this.release_date = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE));
+    }
+
 }

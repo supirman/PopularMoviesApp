@@ -37,10 +37,8 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.PosterViewHolder> {
 
     @Override
     public void onBindViewHolder(PosterViewHolder holder, int position) {
-        Movie movie = mDataset.get(position);
-        holder.setMovie(movie);
+        holder.setMovie(mDataset.get(position));
     }
-
 
     @Override
     public int getItemCount() {

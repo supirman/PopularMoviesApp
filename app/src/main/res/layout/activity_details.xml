@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/NestedScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -67,6 +68,13 @@
                         android:isIndicator="true"
                         android:numStars="10"
                         android:stepSize="0.1" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:text="@string/favorite"
+                        android:onClick="onClickToggleFavorite"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -135,4 +143,4 @@
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </LinearLayout>
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>
