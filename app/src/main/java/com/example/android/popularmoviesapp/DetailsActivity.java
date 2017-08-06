@@ -5,10 +5,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -59,6 +63,9 @@ public class DetailsActivity extends AppCompatActivity implements
 
     private ReviewAdapter reviewAdapter;
     private TrailerAdapter trailerAdapter;
+
+    private ShareActionProvider mShareActionProvider;
+    private Trailer firstTrailer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,9 +182,11 @@ public class DetailsActivity extends AppCompatActivity implements
                 break;
             }
             case VIDEO_LOADER: {
-                List<Trailer> resultList = jsonToList(jsonArray, Trailer.class);
-                if (resultList.size() != 0) {
-                    trailerAdapter.setDataset(resultList);
+                List<Trailer> trailerList = jsonToList(jsonArray, Trailer.class);
+                if (trailerList.size() != 0) {
+                    trailerAdapter.setDataset(trailerList);
+                    firstTrailer = trailerList.get(0);
+                    setShareIntent(getShareVideoIntent());
                 }
                 break;
             }
@@ -202,5 +211,49 @@ public class DetailsActivity extends AppCompatActivity implements
         if(uri != null) {
             Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.menu_detail, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.action_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+        // Return true to display menu
+        return true;
+    }
+
+    // Call to update the share intent
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.action_share){
+            if(firstTrailer!=null) {
+                startActivity(Intent.createChooser(getShareVideoIntent(),
+                        getResources().getText(R.string.send_to)));
+                return true;
+            }
+            return false;
+        } else return super.onOptionsItemSelected(item);
+    }
+
+    private Intent getShareVideoIntent(){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                String.format("%s | %s https://www.youtube.com/watch?v=%s",
+                        mMovie.getTitle(), firstTrailer.getName(), firstTrailer.getKey()));
+        sendIntent.setType("text/plain");
+        return sendIntent;
     }
 }
