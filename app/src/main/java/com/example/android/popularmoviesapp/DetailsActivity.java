@@ -165,6 +165,7 @@ public class DetailsActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<JSONArray> loader, JSONArray jsonArray) {
+        if (jsonArray == null) return;
         switch (loader.getId()) {
             case REVIEW_LOADER: {
                 List<Review> resultList = jsonToList(jsonArray, Review.class);

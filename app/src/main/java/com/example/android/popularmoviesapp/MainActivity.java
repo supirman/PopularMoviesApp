@@ -172,19 +172,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onLoadFinished(Loader<JSONArray> loader, JSONArray movieArray) {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         List<Movie> movieList = null;
-        try {
-            movieList = new ArrayList<>();
-            for (int i = 0; i < movieArray.length(); i++) {
-                JSONObject movie = movieArray.getJSONObject(i);
-                Movie m = new Movie(movie);
-                movieList.add(m);
+        if (movieArray != null) {
+            try {
+                movieList = new ArrayList<>();
+                for (int i = 0; i < movieArray.length(); i++) {
+                    JSONObject movie = movieArray.getJSONObject(i);
+                    Movie m = new Movie(movie);
+                    movieList.add(m);
+                }
+                showMovieData();
+                movieAdapter.setDataset(movieList);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showErrorMessage();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        if (movieList.size()!=0) {
-            showMovieData();
-            movieAdapter.setDataset(movieList);
         } else {
             showErrorMessage();
         }
