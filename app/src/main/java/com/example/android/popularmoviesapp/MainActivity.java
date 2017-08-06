@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+    private SharedPreferences sharedPreferences;
 
     private static final int MOVIE_LOADER = 100;
     private static final int FAVORITE_LOADER = 200;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setHasFixedSize(true);
         movieAdapter = new MovieAdapter(MainActivity.this);
         mRecyclerView.setAdapter(movieAdapter);
-        String sort_by = "popular";
+        String sort_by = sharedPreferences.getString(getString(R.string.sort_key),"popular");
         loadMovieData(sort_by);
     }
 
@@ -90,15 +91,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        List<Movie> movieList = new ArrayList<>();
-                        while (data.moveToNext()) {
-                            movieList.add(new Movie(data));
-                        }
-                        if (movieList.size() != 0) {
-                            showMovieData();
-                            movieAdapter.setDataset(movieList);
-                        } else {
-                            showErrorMessage();
+                        if(sharedPreferences.getString(getString(R.string.sort_key),"popular")
+                                .equals("favorites")) {
+                            List<Movie> movieList = new ArrayList<>();
+                            while (data.moveToNext()) {
+                                movieList.add(new Movie(data));
+                            }
+                            if (movieList.size() != 0) {
+                                showMovieData();
+                                movieAdapter.setDataset(movieList);
+                            } else {
+                                showErrorMessage();
+                            }
                         }
                     }
 
@@ -113,10 +117,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mRecyclerView.getLayoutManager().scrollToPosition(0);
+
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(getString(R.string.sort_key), sort_by);
+        editor.apply();
     }
 
     private void setupSharedPreference() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
