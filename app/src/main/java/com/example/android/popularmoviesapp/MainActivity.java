@@ -41,7 +41,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final int FAVORITE_LOADER = 200;
     LoaderManager.LoaderCallbacks<Cursor> cursorLoaderCallback;
 
+    private static final String MOVIE_DATA= "movie_data";
+    
+    public static final String POPULAR = "popular";
+    public static final String TOP_RATED = "top_rated";
+    public static final String FAVORITES = "favorites";
     private MovieAdapter movieAdapter;
+
+    String sort_by;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +67,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setHasFixedSize(true);
         movieAdapter = new MovieAdapter(MainActivity.this);
         mRecyclerView.setAdapter(movieAdapter);
-        String sort_by = sharedPreferences.getString(getString(R.string.sort_key),"popular");
+        sort_by = sharedPreferences.getString(getString(R.string.sort_key),POPULAR);
+
         loadMovieData(sort_by);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(MOVIE_DATA, (ArrayList<Movie>) movieAdapter.getDataset());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        ArrayList<Movie> movies = savedInstanceState.getParcelableArrayList(MOVIE_DATA);
+        movieAdapter.setDataset(movies);
     }
 
     private void loadMovieData(String sort_by) {
         LoaderManager loaderManager = getSupportLoaderManager();
-        if(!sort_by.equals("favorites")) {
+        if(!sort_by.equals(FAVORITES)) {
             Loader<JSONArray> movieLoader = loaderManager.getLoader(MOVIE_LOADER);
 
             URL url = NetworkUtils.buildMovieUrl(sort_by);
@@ -91,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        if(sharedPreferences.getString(getString(R.string.sort_key),"popular")
-                                .equals("favorites")) {
+                        if(sharedPreferences.getString(getString(R.string.sort_key),POPULAR)
+                                .equals(FAVORITES)) {
                             List<Movie> movieList = new ArrayList<>();
                             while (data.moveToNext()) {
                                 movieList.add(new Movie(data));
@@ -131,6 +152,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_sort_by, menu);
+        int _menu = sort_by.equals(POPULAR) ? R.id.action_sort_by_popularity:
+                sort_by.equals(TOP_RATED) ? R.id.action_sort_by_rating : R.id.action_favorites ;
+        MenuItem menuItem = menu.findItem(_menu);
+        menuItem.setChecked(true);
         return true;
     }
 
@@ -140,15 +165,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (id) {
             case R.id.action_sort_by_popularity:
                 item.setChecked(!item.isChecked());
-                loadMovieData("popular");
+                loadMovieData(POPULAR);
                 return true;
             case R.id.action_sort_by_rating:
                 item.setChecked(!item.isChecked());
-                loadMovieData("top_rated");
+                loadMovieData(TOP_RATED);
                 return true;
             case R.id.action_favorites:
                 item.setChecked(!item.isChecked());
-                loadMovieData("favorites");
+                loadMovieData(FAVORITES);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

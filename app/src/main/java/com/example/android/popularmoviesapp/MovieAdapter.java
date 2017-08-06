@@ -51,6 +51,10 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.PosterViewHolder> {
         notifyDataSetChanged();
     }
 
+    List<Movie> getDataset(){
+        return mDataset;
+    }
+
     interface MovieAdapterOnClickHandler{
         void onCLick(Movie movie);
     }
