@@ -6,10 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.popularmoviesapp.model.Review;
 import com.example.android.popularmoviesapp.model.Trailer;
 import com.example.android.popularmoviesapp.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -47,9 +49,13 @@ class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHold
         return dataset.size();
     }
 
-    void setDataset(List<Trailer> dataset) {
-        this.dataset = dataset;
+    void setDataSet(List<Trailer> dataSet) {
+        this.dataset = dataSet;
         notifyDataSetChanged();
+    }
+
+    ArrayList<Review> getDataSet() {
+        return (ArrayList) dataset;
     }
 
     interface TrailerAdapterOnClickHandler{

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.android.popularmoviesapp.model.Review;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,9 +43,13 @@ class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>
         return reviewList.size();
     }
 
-    void setDataset(List<Review> dataset) {
-        this.reviewList = dataset;
+    void setDataSet(List<Review> dataSet) {
+        this.reviewList = dataSet;
         notifyDataSetChanged();
+    }
+
+    ArrayList<Review> getDataSet() {
+        return (ArrayList) reviewList;
     }
 
     class ReviewViewHolder extends RecyclerView.ViewHolder {

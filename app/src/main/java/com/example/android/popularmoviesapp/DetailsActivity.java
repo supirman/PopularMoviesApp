@@ -73,6 +73,8 @@ public class DetailsActivity extends AppCompatActivity implements
     private Trailer firstTrailer;
 
     private boolean favorite = false;
+    private final static String TRAILERS_EXTRA = "TRAILERS_EXTRA";
+    private final static String REVIEWS_EXTRA = "REVIEWS_EXTRA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +107,26 @@ public class DetailsActivity extends AppCompatActivity implements
         ActionBar actionBar = this.getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(outState!=null){
+            outState.putParcelableArrayList(TRAILERS_EXTRA, trailerAdapter.getDataSet());
+            outState.putParcelableArrayList(REVIEWS_EXTRA, reviewAdapter.getDataSet());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState!=null){
+            ArrayList<Trailer> trailers = savedInstanceState.getParcelableArrayList(TRAILERS_EXTRA);
+            trailerAdapter.setDataSet(trailers);
+            ArrayList<Review> reviews = savedInstanceState.getParcelableArrayList(REVIEWS_EXTRA);
+            reviewAdapter.setDataSet(reviews);
         }
     }
 
@@ -218,14 +240,14 @@ public class DetailsActivity extends AppCompatActivity implements
             case REVIEW_LOADER: {
                 List<Review> resultList = jsonToList(jsonArray, Review.class);
                 if (resultList.size() != 0) {
-                    reviewAdapter.setDataset(resultList);
+                    reviewAdapter.setDataSet(resultList);
                 }
                 break;
             }
             case VIDEO_LOADER: {
                 List<Trailer> trailerList = jsonToList(jsonArray, Trailer.class);
                 if (trailerList.size() != 0) {
-                    trailerAdapter.setDataset(trailerList);
+                    trailerAdapter.setDataSet(trailerList);
                     firstTrailer = trailerList.get(0);
                     setShareIntent(getShareVideoIntent());
                 }
